@@ -1,29 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import css from './ContactForm.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContactFormData } from 'store/selectors';
+import { resetFormData, updateFormData } from 'store/contactFormSlice';
 
 const ContactForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    number: '',
-  });
+  const dispatch = useDispatch();
+  const formData = useSelector(getContactFormData);
 
   const handleChange = e => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    dispatch(updateFormData({ [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = e => {
     e.preventDefault();
-    const { name, number } = formData;
-
-    onSubmit({ name, number });
-    setFormData({ name: '', number: '' });
+    onSubmit(formData);
+    dispatch(resetFormData());
   };
-
-  const { name, number } = formData;
 
   return (
     <form className={css.form} onSubmit={handleSubmit}>
@@ -35,7 +29,7 @@ const ContactForm = ({ onSubmit }) => {
         id="name"
         type="text"
         name="name"
-        value={name}
+        // value={name}
         onChange={handleChange}
         required
       />
@@ -48,7 +42,7 @@ const ContactForm = ({ onSubmit }) => {
         id="tel"
         type="tel"
         name="number"
-        value={number}
+        // value={number}
         onChange={handleChange}
         required
       />

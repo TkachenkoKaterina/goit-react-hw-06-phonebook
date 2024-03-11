@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
 import ContactForm from '../ContactForm/ContactForm';
 import ContactList from '../ContactList/ContactList';
 import Filter from '../Filter/Filter';
 import css from './App.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from 'store/selectors';
+import { addContact, deleteContact, updateFilter } from 'store/contactsSlice';
 
 export const App = () => {
-  const [contacts, setContacts] = useState(() => {
-    const storedContacts = JSON.parse(localStorage.getItem('contacts'));
-    return storedContacts || [];
-  });
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+  // useEffect(() => {
+  //   localStorage.setItem('contacts', JSON.stringify(contacts));
+  // }, [contacts]);
 
   const handleFilter = e => {
-    setFilter(e.target.value);
+    dispatch(updateFilter(e.target.value));
   };
 
   const handleSubmit = contact => {
@@ -32,22 +33,17 @@ export const App = () => {
     if (isDuplicate) {
       alert(`${name} is already in contacts!`);
     } else {
-      setContacts(prevContacts => [
-        { id: nanoid(), ...contact },
-        ...prevContacts,
-      ]);
+      dispatch(addContact({ id: nanoid(), ...contact }));
     }
   };
 
   const handleDeleteContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+    dispatch(deleteContact(id));
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredContacts = contacts.filter(contact => {
+    return contact.name.toLowerCase().includes(filter.toLowerCase());
+  });
 
   return (
     <div className={css.container}>
